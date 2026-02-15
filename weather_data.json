@@ -9,3 +9,4 @@
 {"timestamp": "2026-02-12T19:50:06.191491", "city": "Kuala Lumpur", "temperature": 27, "feels_like": 31, "humidity": 74, "weather": ["Partly Cloudy "], "air_quality": "2"}
 {"timestamp": "2026-02-13T19:43:15.343457", "city": "Kuala Lumpur", "temperature": 27, "feels_like": 32, "humidity": 84, "weather": ["Partly Cloudy "], "air_quality": "2"}
 {"timestamp": "2026-02-14T19:26:21.889734", "city": "Kuala Lumpur", "temperature": 26, "feels_like": 30, "humidity": 89, "weather": ["Patchy light rain"], "air_quality": "3"}
+{"timestamp": "2026-02-15T19:27:44.200049", "city": "Kuala Lumpur", "temperature": 25, "feels_like": 28, "humidity": 94, "weather": ["Light Rain"], "air_quality": "2"}

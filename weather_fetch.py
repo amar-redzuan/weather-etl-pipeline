@@ -1,92 +1,76 @@
-
-# def test_api_calls():
-#     print("Testing 200 OK ...")
-#     response = requests.get("https://jsonplaceholder.typicode.com/posts/1")
-#     print(f"Status Code: {response.status_code}")
-#     print(f"JSON: {response.json()}\n")
-
-
-#     print("Testing 404 not found ...")
-#     response = requests.get("https://jsonplaceholder.typicode.com/posts/99999")
-#     print(f"Status code: {response.status_code}")
-#     print(f"Data: {response.json()}\n")
-
-#     print("Error Handling ..")
-#     response = requests.get("https://httpbin.org/status/500")
-#     if response.status_code == 200:
-#         print("Success?")
-#         print(f"Response code: {response.status_code}")
-        
-#     else:
-#         print("Error")
-
-    # response = requests.get("https://restcountries.com/v3.1/all?fields=name,capital,population")
-
-# if code == 200
-#  print len(countries)
-
-#     if response.status_code == 200:
-#         print(f"Country total: {len(response.json())}")
-#     else:
-#         print(f"Error - {response.status_code}")
-# test_api_calls()
-
-# x = True
-
-# def true(x):
-#     if x is True:
-#         return None
-#     else:
-#         print("bendani")
-
-# true(x)
-
 import requests
 import json
 from datetime import datetime
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
+API_KEY = "YOUR_API_KEY_HERE"
+BASE_URL = "http://api.weatherstack.com/current"
 
-API_KEY = os.getenv("WEATHERSTACK_API_KEY")
-
-if not API_KEY:
-    raise ValueError("WEATHERSTACK_API_KEY not found")
+cities = [
+    "Kuala Lumpur",
+    "Putrajaya",
+    "Kajang"
+]
 
 def get_weather(city):
-    """ Featch weather data for a city """
-    url = f"http://api.weatherstack.com/current?access_key={API_KEY}&query={city}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Error: {response.status_code}")
-
-def extract_data(weather_data):
-    if not weather_data:
-        return None
-    
-    return {
-        "timestamp": datetime.now().isoformat(),
-        "city": weather_data['location']['name'],
-        "temperature": weather_data['current']['temperature'],
-        "feels_like": weather_data['current']['feelslike'],
-        "humidity": weather_data['current']['humidity'],
-        "weather": weather_data['current']['weather_descriptions'],
-        "air_quality": weather_data['current']['air_quality']['us-epa-index']
+    params = {
+        "access_key": API_KEY,
+        "query": city
     }
 
+    response = requests.get(BASE_URL, params=params)
+    return response.json()
 
-def save_to_file(record, filename = "weather_data.json"):
-    with open(filename, "a") as f:
+def extract_data(weather_data):
+    if not weather_data or "current" not in weather_data:
+        return None
+
+    location = weather_data["location"]
+    current = weather_data["current"]
+
+    return {
+        "timestamp": datetime.now().isoformat(),
+        "city": location["name"],
+        "country": location["country"],
+        "latitude": location["lat"],
+        "longitude": location["lon"],
+
+        "temperature": current["temperature"],
+        "feels_like": current["feelslike"],
+        "humidity": current["humidity"],
+        "pressure": current["pressure"],
+
+        "wind_speed": current["wind_speed"],
+        "wind_direction": current["wind_dir"],
+
+        "cloud_cover": current["cloudcover"],
+        "precipitation": current["precip"],
+        "uv_index": current["uv_index"],
+
+        "weather": current["weather_descriptions"],
+        "air_quality": current["air_quality"]["us-epa-index"]
+    }
+
+def save_to_file(record):
+    with open("weather_data.json", "a") as f:
         f.write(json.dumps(record) + "\n")
-    print(f"✓ Saved record: {record['city']} - {record['temperature']}°C")
+
+def main():
+    run_timestamp = datetime.now().isoformat()
+
+    for city in cities:
+        data = get_weather(city)
+        if not data:
+            print(f"Failed to get data for {city}")
+            continue
+
+        # Extract all fields, adding the run timestamp
+        clean_data = extract_data(data)
+        if clean_data:
+            # Override the timestamp with batch timestamp
+            clean_data["timestamp"] = run_timestamp
+
+            save_to_file(clean_data)
+            print(f"✓ Saved data for {city}")
 
 if __name__ == "__main__":
-    data = get_weather("Kuala Lumpur")
-    clean_data = extract_data(data)
-
-    if clean_data:
-        save_to_file(clean_data)
-        print(clean_data)
+    main()
